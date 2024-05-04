@@ -1,7 +1,7 @@
 """RGB color picker tool."""
 
 import pygame
-from pygame_widgets.slider import Slider
+from pygame_widgets.slider import Slider as PygameSlider
 from pygame_widgets.textbox import TextBox
 
 from tools.object import Object
@@ -28,47 +28,26 @@ class ColorPicker(Object):
         self._rect_color = pygame.Color(0)
 
         self.red = Slider(
-            self.window, self.x, self.y, self.width, self.height, min=0, max=255, step=1
+            self.x, self.y, self.width, self.height, (0, 0, 0), "Red", self.window
         )
-        self.red_input = TextBox(
-            self.window, self.x + self.width + 20, self.y - 20, 45, 45
-        )
-        self.red_input.onTextChanged = self.text_changed
-        self.red_input.setText("127")
         self.green = Slider(
-            self.window,
             self.x,
             self.y + self.height + 45,
             self.width,
             self.height,
-            min=0,
-            max=255,
-            step=1,
-        )
-        self.green_input = TextBox(
-            self.window, self.x + self.width + 20, self.y + self.height + 25, 45, 45
-        )
-        self.green_input.onTextChanged = self.text_changed
-        self.green_input.setText("127")
-        self.blue = Slider(
+            (0, 0, 0),
+            "Green",
             self.window,
+        )
+        self.blue = Slider(
             self.x,
             self.y + (self.height * 2) + 90,
             self.width,
             self.height,
-            min=0,
-            max=255,
-            step=1,
-        )
-        self.blue_input = TextBox(
+            (0, 0, 0),
+            "Blue",
             self.window,
-            self.x + self.width + 20,
-            self.y + (self.height * 2) + 70,
-            45,
-            45,
         )
-        self.blue_input.onTextChanged = self.text_changed
-        self.blue_input.setText("127")
         self.color_rect = pygame.Rect(
             self.x + 25, self.y + (self.height * 2) + 135, 50, 50
         )
@@ -88,56 +67,61 @@ class ColorPicker(Object):
 
     def render(self, window: pygame.Surface) -> None:
         """Render each slider and their texts."""
-        text_surface = self.font.render("Red", False, (0, 0, 0))
-        x_offset = (self.width / 2) - text_surface.get_size()[0] / 2
-        window.blit(text_surface, (self.x + x_offset, self.red.getY() - 25))
-        self.red.draw()
-
-        text_surface = self.font.render("Green", False, (0, 0, 0))
-        x_offset = (self.width / 2) - text_surface.get_size()[0] / 2
-        window.blit(text_surface, (self.x + x_offset, self.green.getY() - 25))
-        self.green.draw()
-
-        text_surface = self.font.render("Blue", False, (0, 0, 0))
-        x_offset = (self.width / 2) - text_surface.get_size()[0] / 2
-        window.blit(text_surface, (self.x + x_offset, self.blue.getY() - 25))
-        self.blue.draw()
+        self.red.render(window)
+        self.green.render(window)
+        self.blue.render(window)
 
         pygame.draw.rect(window, self._rect_color, self.color_rect)
         pygame.draw.rect(window, (0, 0, 0), self.color_rect, width=1)
 
-        self.red_input.draw()
-        self.green_input.draw()
-        self.blue_input.draw()
-
     def update(self) -> None:
         """Update the color basen on the values of the slider."""
+        self.red.update()
+        self.green.update()
+        self.blue.update()
+
         self.rect_color = (
-            self.red.getValue(),
-            self.green.getValue(),
-            self.blue.getValue(),
+            self.red.get_value(),
+            self.green.get_value(),
+            self.blue.get_value(),
         )
-        self.red_input.setText(str(self.red.value))
-        self.green_input.setText(str(self.green.value))
-        self.blue_input.setText(str(self.blue.value))
+
+
+class Slider(Object):
+    """Creating a better Slider with textbox and titles included."""
+
+    def __init__(
+        self,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        color: tuple,
+        title: str,
+        window: pygame.Surface,
+    ):
+        super().__init__(x, y, width, height, color)
+        self.title = title
+        self.window = window
+
+        self.slider = PygameSlider(
+            self.window, self.x, self.y, self.width, self.height, min=0, max=255, step=1
+        )
+        self.slider_input = TextBox(
+            self.window, self.x + self.width + 20, self.y - 20, 45, 45
+        )
+        self.slider_input.onTextChanged = self.text_changed
+        self.slider_input.setText("127")
+
+        self.font = pygame.font.SysFont("Arial", 20)
 
     def text_changed(self) -> None:
-        """This method is called, when any input is written."""
-        red_value = self.red_input.getText()
-        if self.is_int(red_value):
-            self.red.setValue(int(red_value))
+        """This method is called, when the input is written."""
+        slider_value = self.slider_input.getText()
+        if self.is_int(slider_value):
+            self.slider.setValue(int(slider_value))
         else:
-            self.red.setValue(0)
-        green_value = self.green_input.getText()
-        if self.is_int(green_value):
-            self.green.setValue(int(green_value))
-        else:
-            self.green.setValue(0)
-        blue_value = self.blue_input.getText()
-        if self.is_int(blue_value):
-            self.blue.setValue(int(blue_value))
-        else:
-            self.blue.setValue(0)
+            self.slider.setValue(0)
 
     def is_int(self, value: any) -> bool:
         """This function checks if the given value could be an int."""
@@ -146,3 +130,19 @@ class ColorPicker(Object):
             return True
         except ValueError:
             return False
+
+    def update(self) -> None:
+        """Update the color basen on the values of the slider."""
+        self.slider_input.setText(str(self.slider.value))
+
+    def render(self, _) -> None:
+        """Render each slider and their texts."""
+        text_surface = self.font.render(self.title, False, (0, 0, 0))
+        x_offset = (self.width / 2) - text_surface.get_size()[0] / 2
+        self.window.blit(text_surface, (self.x + x_offset, self.slider.getY() - 25))
+        self.slider.draw()
+        self.slider_input.draw()
+
+    def get_value(self) -> int:
+        """Returns the slider value"""
+        return self.slider.value
