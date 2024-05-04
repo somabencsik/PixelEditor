@@ -48,8 +48,18 @@ class ColorPicker(Object):
             "Blue",
             self.window,
         )
+        self.alpha = Slider(
+            self.x,
+            self.y + (self.height * 3) + 135,
+            self.width,
+            self.height,
+            (0, 0, 0),
+            "Alpha",
+            self.window,
+        )
+        self.alpha.slider.setValue(255)
         self.color_rect = pygame.Rect(
-            self.x + 25, self.y + (self.height * 2) + 135, 50, 50
+            self.x + 25, self.y + (self.height * 3) + 180, 50, 50
         )
 
     @property
@@ -58,18 +68,20 @@ class ColorPicker(Object):
         return self._rect_color
 
     @rect_color.setter
-    def rect_color(self, value: tuple[int, int, int]) -> None:
+    def rect_color(self, value: tuple[int, int, int, int]) -> None:
         """Set the color with value."""
-        r, g, b = value
+        r, g, b, a = value
         self._rect_color.r = r
         self._rect_color.g = g
         self._rect_color.b = b
+        self._rect_color.a = a
 
     def render(self, window: pygame.Surface) -> None:
         """Render each slider and their texts."""
         self.red.render(window)
         self.green.render(window)
         self.blue.render(window)
+        self.alpha.render(window)
 
         pygame.draw.rect(window, self._rect_color, self.color_rect)
         pygame.draw.rect(window, (0, 0, 0), self.color_rect, width=1)
@@ -79,11 +91,13 @@ class ColorPicker(Object):
         self.red.update()
         self.green.update()
         self.blue.update()
+        self.alpha.update()
 
         self.rect_color = (
             self.red.get_value(),
             self.green.get_value(),
             self.blue.get_value(),
+            self.alpha.get_value(),
         )
 
 

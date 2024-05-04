@@ -33,10 +33,15 @@ class Program:
         self.window = pygame.display.set_mode((self._window_width, self._window_height))
         pygame.display.set_caption(self.title)
 
+        self.surface = pygame.Surface(
+            (self._window_width, self._window_height),
+            pygame.SRCALPHA,  # pylint: disable=no-member
+        )
+
         self._canvas_width = 1024  # Later make it scaleable
         self._canvas_height = 768
 
-        self.background_color = (127, 127, 127)
+        self.background_color = (127, 127, 127, 0)
 
         self.objects: list[Object] = []
         self.is_running = False
@@ -93,7 +98,9 @@ class Program:
         self.window.fill((127, 127, 127))
 
         for o in self.objects:
-            o.render(self.window)
+            o.render(self.surface)
+
+        self.window.blit(self.surface, (0, 0))
 
         pygame.display.flip()
 

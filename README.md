@@ -13,14 +13,16 @@ pygame-widgets==1.1.5<br>
 
 - Draw 64x64 (that works for sure) surface to draw
 - Change color with RGB values with slider and input
+- Set alpha value as well
 
 # What will it do?
 
 Kind of in a priority order.
 
-- Have a color picker
 - Eraser
 - Export as image
+- Have a color picker
+- Draw Rect tool
+- Draw Circle tool
 - Be able to use more sizes (32x32, 128x128, (...)?)
-- Set alpha value as well
 - Zoom in-out
